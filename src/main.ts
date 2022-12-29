@@ -2,19 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder } from '@nestjs/swagger';
 import { SwaggerModule } from '@nestjs/swagger/dist';
 import { AppModule } from './app.module';
+import { ValidateInputPipe } from './../validate.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const config = new DocumentBuilder()
-    .setTitle('My Money')
-    .setDescription('The My Money API documentation')
-    .setVersion('1.0')
-    .addTag('mm')
-    .build()
+  app.useGlobalPipes(new ValidateInputPipe())
 
-  const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup('/api', app, document)
   await app.listen(4200);
 
 }

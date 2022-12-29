@@ -13,6 +13,7 @@ import { CategoryModule } from './../category/category.module';
   imports: [
     SequelizeModule.forFeature([User, Spend, Category, UserSpends,]), CategoryModule
   ],
+  exports: [SpendService],
   providers: [SpendService],
   controllers: [SpendController]
 })

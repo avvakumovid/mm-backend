@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserController } from './user/user.controller';
 import { UserModule } from './user/user.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './user/user.model';
@@ -10,9 +9,13 @@ import { SpendModule } from './spend/spend.module';
 import { Spend } from './spend/spend.model';
 import { Category } from './category/category.model';
 import { UserSpends } from './spend/user-spends.model';
+import { DatabaseModule } from './core/database/database.module';
+import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: 'localhost',
@@ -25,7 +28,8 @@ import { UserSpends } from './spend/user-spends.model';
     }),
     UserModule,
     CategoryModule,
-    SpendModule
+    SpendModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],

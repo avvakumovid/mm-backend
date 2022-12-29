@@ -7,6 +7,7 @@ import { UserSpends } from './user-spends.model';
 interface SpendCreationAttrs {
     name: string
     image: string
+    userId: number
 }
 
 @Table({ tableName: 'Spend' })
@@ -31,8 +32,15 @@ export class Spend extends Model<Spend, SpendCreationAttrs> {
     @BelongsTo(() => Category)
     category: Category
 
-    @BelongsToMany(() => User, () => UserSpends)
-    user: User[]
+    @ForeignKey(() => User)
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: false,
+    })
+    userId: number;
+
+    @BelongsTo(() => User)
+    user: User;
 
 
 }
