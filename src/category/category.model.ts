@@ -18,6 +18,9 @@ export class Category extends Model<Category, CategoryCreationAttrs> {
     @Column({ type: DataType.STRING, allowNull: false, unique: true, })
     name: string
 
+    @Column({ type: DataType.ENUM('income', 'expense'), allowNull: false     })
+    type: string
+
     @ApiProperty({ example: 'image.png', description: 'Image' })
     @Column({ type: DataType.STRING, allowNull: false, })
     image: string

@@ -29,7 +29,11 @@ export class UserService {
     }
 
     async addSpend(spendDto: CreateSpendDto, userId): Promise<Spend> {
-        let spend = await this.spendService.create(spendDto, userId)
+        const user = await this.findOneById(userId)
+        const spend = await this.spendService.create(spendDto, userId)
+        const account = user.account + spend.amount
+        user.account = +account.toFixed(2)
+        await user.save()
         return spend
     }
 }

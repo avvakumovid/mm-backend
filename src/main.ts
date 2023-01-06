@@ -7,8 +7,10 @@ import { ValidateInputPipe } from './../validate.pipe';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidateInputPipe())
-
+  app.useGlobalPipes(new ValidateInputPipe({
+    forbidUnknownValues: false
+  }))
+  app.enableCors();
   await app.listen(4200);
 
 }

@@ -8,6 +8,7 @@ import { Category } from './../category/category.model';
 import { UserSpends } from './user-spends.model';
 import { CategoryService } from 'src/category/category.service';
 import { CategoryModule } from './../category/category.module';
+import { UserModule } from './../user/user.module';
 
 @Module({
   imports: [

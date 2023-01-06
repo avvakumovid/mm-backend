@@ -5,7 +5,7 @@ export class CreateSpendDto {
     name: string
 
     @IsNotEmpty()
-    amount: string
+    amount: number
 
     @IsNotEmpty()
     categoryId: number

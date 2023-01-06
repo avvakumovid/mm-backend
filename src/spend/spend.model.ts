@@ -8,6 +8,7 @@ interface SpendCreationAttrs {
     name: string
     image: string
     userId: number
+    amount: number
 }
 
 @Table({ tableName: 'Spend' })
@@ -22,8 +23,8 @@ export class Spend extends Model<Spend, SpendCreationAttrs> {
     name: string
 
     @ApiProperty({ example: '2131', description: 'Amount' })
-    @Column({ type: DataType.DECIMAL, allowNull: false, })
-    amount: string
+    @Column({ type: DataType.FLOAT, allowNull: false, })
+    amount: number
 
     @ForeignKey(() => Category)
     @Column({ type: DataType.INTEGER, allowNull: false })

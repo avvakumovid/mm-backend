@@ -28,6 +28,9 @@ export class User extends Model<User> {
     @Column({ type: DataType.STRING, allowNull: false })
     password: string
 
+    @Column({ type: DataType.FLOAT, allowNull: false, defaultValue: 0 })
+    account: number
+
     @BelongsToMany(() => Spend, () => UserSpends)
     spends: Spend[]
 
