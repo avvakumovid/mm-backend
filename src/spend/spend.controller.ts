@@ -21,10 +21,18 @@ export class SpendController {
         return this.spendService.getUserSpends(req.user.id)
     }
 
+    @UseGuards(AuthGuard('jwt'))
+    @Get('/group')
+    getUserSpendsByCategory(@Request() req) {
+        return this.spendService.getUserSpendsByCategory(req.user.id)
+    }
+
     @Get('all')
     getAll() {
         return this.spendService.getAll()
     }
+
+
 
 
 }

@@ -6,6 +6,7 @@ import { CategoryService } from './../category/category.service';
 import { Category } from 'src/category/category.model';
 import { User } from 'src/user/user.model';
 import { UserService } from './../user/user.service';
+import sequelize from 'sequelize';
 
 @Injectable()
 export class SpendService {
@@ -33,11 +34,49 @@ export class SpendService {
 
     async getUserSpends(userId) {
         return this.spendRepository.findAll({
-            where: { userId }, include: [
+            where: { userId },
+            include: [
                 {
                     model: Category
                 }
             ]
         })
     }
+
+    async getUserSpendsByCategory(userId) {
+        const spends = await this.spendRepository.findAll({
+            where: { userId },
+            include: [
+                {
+                    model: Category
+                }
+            ],
+            attributes: ['name', 'amount', 'categoryId'],
+        })
+        let groupedSpends = spends.reduce((acc, next) => {
+            if (acc[next.category.name]) {
+                acc[next.category.name].count++
+                acc[next.category.name].total += next.amount
+            } else {
+                acc[next.category.name] = { count: 1, total: next.amount, name: next.category.name }
+            }
+            return acc
+        }, {})
+        let groupedSpendsArray = []
+        for (const key in groupedSpends) {
+            groupedSpendsArray.push(groupedSpends[key])
+        }
+
+        return groupedSpendsArray
+    }
+
+
+    groupBy(xs, key) {
+        return xs.reduce(function (rv, x) {
+            (rv[x[key]] = rv[x[key]] + 1 || 1);
+            return rv;
+        }, {});
+    };
 }
+
+
