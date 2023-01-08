@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Request } from '@nestjs/common';
 import { SpendService } from './spend.service';
 import { CreateSpendDto } from './dto/create-spend.dto';
-import { UseGuards } from '@nestjs/common/decorators';
+import { Param, UseGuards } from '@nestjs/common/decorators';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('spend')
@@ -23,8 +23,15 @@ export class SpendController {
 
     @UseGuards(AuthGuard('jwt'))
     @Get('/group')
-    getUserSpendsByCategory(@Request() req) {
+    getUserSpendsGroupedByCategory(@Request() req) {
         return this.spendService.getUserSpendsGroupedByCategory(req.user.id)
+    }
+
+
+    @UseGuards(AuthGuard('jwt'))
+    @Get('/:categoryId')
+    getUserSpendsByCategory(@Param('categoryId') categoryId: number, @Request() req) {
+        return this.spendService.getUserSpendsByCategory(req.user.id, categoryId)
     }
 
     @Get('all')

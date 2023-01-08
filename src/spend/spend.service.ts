@@ -70,13 +70,19 @@ export class SpendService {
         return groupedSpendsArray
     }
 
+    async getUserSpendsByCategory(userId: number, categoryId: number) {
+        return await this.spendRepository.findAll({
+            where: { userId, categoryId },
+            include: [
+                {
+                    model: Category
+                }
+            ],
 
-    groupBy(xs, key) {
-        return xs.reduce(function (rv, x) {
-            (rv[x[key]] = rv[x[key]] + 1 || 1);
-            return rv;
-        }, {});
-    };
+        })
+
+    }
+
 }
 
 
