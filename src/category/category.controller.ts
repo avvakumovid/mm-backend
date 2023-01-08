@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { Body, Get, Param, Post } from '@nestjs/common/decorators';
+import { Body, Get, Param, Post, Query } from '@nestjs/common/decorators';
 import { CreateCategoryDto } from './dto/create-category.dto';
 
 @Controller('category')
@@ -12,10 +12,9 @@ export class CategoryController {
         return this.categoryService.createCategory(dto)
     }
 
-
     @Get()
-    getAll() {
-        return this.categoryService.getAll()
+    getAll(@Query('type') type?: 'income' | 'expense') {
+        return this.categoryService.getAll(type)
     }
 
     @Get('/:id')

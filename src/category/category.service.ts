@@ -12,11 +12,13 @@ export class CategoryService {
         return await this.categoryRepository.create(dto)
     }
 
-    async getAll() {
+    async getAll(type?: 'income' | 'expense') {
+        if (type) return await this.categoryRepository.findAll({ where: { type } })
         return await this.categoryRepository.findAll()
     }
 
     async getById(id: number) {
         return await this.categoryRepository.findOne({ where: { id } })
     }
+
 }
