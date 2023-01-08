@@ -7,6 +7,7 @@ import { Category } from 'src/category/category.model';
 import { User } from 'src/user/user.model';
 import { UserService } from './../user/user.service';
 import sequelize from 'sequelize';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class SpendService {
@@ -32,9 +33,21 @@ export class SpendService {
             })
     }
 
-    async getUserSpends(userId) {
+    async getUserSpends(userId: number, start?: string, end?: string) {
+        const where: sequelize.WhereOptions<Spend> = {
+            userId,
+
+        }
+        if (start || end) {
+            const dateEnd = end ? new Date(end) : new Date('2900-01-01')
+            dateEnd.setDate(dateEnd.getDate() + 1)
+            const dateStart = start ? new Date(start) : new Date('1900-01-01')
+            where.createdAt = {
+                [Op.between]: [start ?? '1900-01-01', dateEnd]
+            }
+        }
         return this.spendRepository.findAll({
-            where: { userId },
+            where,
             order: [
                 ['createdAt', 'DESC']
             ],
@@ -89,6 +102,7 @@ export class SpendService {
         })
 
     }
+
 
 }
 
