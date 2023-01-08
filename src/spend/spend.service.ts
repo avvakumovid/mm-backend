@@ -35,11 +35,18 @@ export class SpendService {
     async getUserSpends(userId) {
         return this.spendRepository.findAll({
             where: { userId },
+            order: [
+                ['createdAt', 'DESC']
+            ],
             include: [
                 {
                     model: Category
                 }
-            ]
+            ],
+            attributes: {
+                exclude: ['updatedAt', 'userId', 'categoryId']
+            }
+
         })
     }
 
