@@ -43,7 +43,7 @@ export class SpendService {
         })
     }
 
-    async getUserSpendsByCategory(userId) {
+    async getUserSpendsGroupedByCategory(userId) {
         const spends = await this.spendRepository.findAll({
             where: { userId },
             include: [
