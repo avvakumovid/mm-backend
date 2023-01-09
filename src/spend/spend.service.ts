@@ -64,7 +64,7 @@ export class SpendService {
 
     async getUserSpendsByDate(
         userId: number,
-        period: 'day' | 'week' | 'month' | 'year' = 'month',
+        period: 'day' | 'week' | 'month' | 'year' = 'year',
         date: string = Date.now().toLocaleString()
     ) {
         const where: sequelize.WhereOptions<Spend> = {
@@ -72,11 +72,37 @@ export class SpendService {
         }
         const today = new Date()
         today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today.toLocaleDateString())
+
         switch (period) {
             case 'day': {
+                const tomorrow = new Date(today.toLocaleDateString())
                 where.createdAt = {
                     [Op.between]: [today, tomorrow.setDate(tomorrow.getDate() + 1)]
+                }
+            }
+                break;
+            case 'week': {
+                const first = today.getDate() - today.getDay(); // First day is the day of the month - the day of the week
+                const last = first + 6; // last day is the first day + 6
+                const firstDay = new Date(today.setDate(first)).toUTCString();
+                const lastDay = new Date(today.setDate(last)).toUTCString();
+                where.createdAt = {
+                    [Op.between]: [firstDay, lastDay]
+                }
+            }
+            case 'month': {
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                where.createdAt = {
+                    [Op.between]: [firstDay, lastDay]
+                }
+            }
+            case 'year': {
+                const currentYear = today.getFullYear();
+                const firstDay = new Date(currentYear, 0, 1);
+                const lastDay = new Date(currentYear, 11, 31);
+                where.createdAt = {
+                    [Op.between]: [firstDay, lastDay]
                 }
             }
         }
