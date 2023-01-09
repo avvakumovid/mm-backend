@@ -33,10 +33,9 @@ export class SpendService {
             })
     }
 
-    async getUserSpends(userId: number, start?: string, end?: string) {
+    async getUserSpends(userId: number, start?: string, end?: string,) {
         const where: sequelize.WhereOptions<Spend> = {
             userId,
-
         }
         if (start || end) {
             const dateEnd = end ? new Date(end) : new Date('2900-01-01')
@@ -61,6 +60,65 @@ export class SpendService {
             }
 
         })
+    }
+
+    async getUserSpendsByDate(
+        userId: number,
+        period: 'day' | 'week' | 'month' | 'year' = 'month',
+        date: string = Date.now().toLocaleString()
+    ) {
+        const where: sequelize.WhereOptions<Spend> = {
+            userId,
+        }
+        const today = new Date()
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today.toLocaleDateString())
+        switch (period) {
+            case 'day': {
+                where.createdAt = {
+                    [Op.between]: [today, tomorrow.setDate(tomorrow.getDate() + 1)]
+                }
+            }
+        }
+        //TODO: add period
+        const spends: any[] = await this.spendRepository.findAll({
+            where,
+            include: [
+                {
+                    model: Category,
+                    attributes: []
+                },
+
+            ],
+            group: [sequelize.fn('date_trunc', 'day', sequelize.col('createdAt')), "category.id"],
+            attributes:
+                [
+                    [sequelize.fn('date_trunc', 'day', sequelize.col('createdAt')), 'createdAt'],
+                    [sequelize.fn('SUM', sequelize.col('amount')), 'total'],
+                    [sequelize.fn('CONCAT', sequelize.col('category.type')), 'type'],
+                ],
+
+        })
+
+        const result = {}
+        for (const spend of spends) {
+            const createdAt = spend.dataValues.createdAt.toLocaleDateString()
+            if (!result[createdAt]) {
+                result[createdAt] = {
+                    createdAt: createdAt,
+                    income: spend.dataValues.type === 'income' ? spend.dataValues.total : 0,
+                    expense: spend.dataValues.type === 'expense' ? Math.abs(spend.dataValues.total) : 0
+                }
+            } else {
+                if (spend.dataValues.type === 'income') {
+                    result[createdAt].income += spend.dataValues.total
+                } else {
+                    result[createdAt].expense += Math.abs(spend.dataValues.total)
+                }
+            }
+        }
+
+        return Object.values(result);
     }
 
     async getUserSpendsGroupedByCategory(userId) {
@@ -102,7 +160,12 @@ export class SpendService {
         })
 
     }
-
+    groupBy = function (xs, key) {
+        return xs.reduce(function (rv, x) {
+            (rv[x[key]] = rv[x[key]] || []).push(x);
+            return rv;
+        }, {});
+    };
 
 }
 

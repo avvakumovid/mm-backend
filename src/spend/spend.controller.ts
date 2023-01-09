@@ -21,6 +21,12 @@ export class SpendController {
         return this.spendService.getUserSpends(req.user.id, start, end)
     }
 
+    @UseGuards(AuthGuard('jwt'))
+    @Get('date')
+    getUserSpendsByDate(@Query('period') period: 'day' | 'week' | 'month' | 'year', @Query('date') date, @Request() req) {
+        return this.spendService.getUserSpendsByDate(req.user.id, period, date)
+    }
+
 
     @UseGuards(AuthGuard('jwt'))
     @Get('/group')
