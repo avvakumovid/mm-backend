@@ -116,10 +116,10 @@ export class SpendService {
                 },
 
             ],
-            group: [sequelize.fn('date_trunc', 'day', sequelize.col('createdAt')), "category.id"],
+            group: period === 'day' ? ['createdAt', "category.type"] : [sequelize.fn('date_trunc', 'day', sequelize.col('createdAt')), "category.id"],
             attributes:
                 [
-                    [sequelize.fn('date_trunc', 'day', sequelize.col('createdAt')), 'createdAt'],
+                    period === 'day' ? 'createdAt' : [sequelize.fn('date_trunc', 'day', sequelize.col('createdAt')), 'createdAt'],
                     [sequelize.fn('SUM', sequelize.col('amount')), 'total'],
                     [sequelize.fn('CONCAT', sequelize.col('category.type')), 'type'],
                 ],
@@ -128,7 +128,7 @@ export class SpendService {
 
         const result = {}
         for (const spend of spends) {
-            const createdAt = spend.dataValues.createdAt.toLocaleDateString()
+            const createdAt = period === 'day' ? spend.dataValues.createdAt.toLocaleString() : spend.dataValues.createdAt.toLocaleDateString()
             if (!result[createdAt]) {
                 result[createdAt] = {
                     createdAt: createdAt,
@@ -144,7 +144,7 @@ export class SpendService {
             }
         }
 
-        return Object.values(result);
+        return Object.values(result)
     }
 
     async getUserSpendsGroupedByCategory(userId) {
