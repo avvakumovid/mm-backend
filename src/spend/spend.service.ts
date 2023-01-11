@@ -75,6 +75,7 @@ export class SpendService {
 
 
         let result = {}
+
         switch (period) {
             case 'day': {
                 const tomorrow = new Date(today.toLocaleDateString())
@@ -107,6 +108,7 @@ export class SpendService {
                 }
 
             case 'year': {
+                //TODO: Response sum amount in month
                 const currentYear = today.getFullYear();
                 const firstDay = new Date(currentYear, 0, 1);
                 const lastDay = new Date(currentYear, 11, 31);
@@ -117,7 +119,7 @@ export class SpendService {
                 break;
             }
         }
-        //TODO: add period
+
         const spends: any[] = await this.spendRepository.findAll({
             where,
             include: [
@@ -170,10 +172,17 @@ export class SpendService {
         })
         let groupedSpends = spends.reduce((acc, next) => {
             if (acc[next.category.name]) {
+                let total = acc[next.category.name].total + next.amount
                 acc[next.category.name].count++
-                acc[next.category.name].total += next.amount
+                acc[next.category.name].total = +total.toFixed(2)
             } else {
-                acc[next.category.name] = { count: 1, total: next.amount, name: next.category.name }
+                acc[next.category.name] = {
+                    count: 1,
+                    total: +next.amount,
+                    name: next.category.name,
+                    type: next.category.type,
+                    image: next.category.image
+                }
             }
             return acc
         }, {})
