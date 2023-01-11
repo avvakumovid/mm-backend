@@ -64,46 +64,57 @@ export class SpendService {
 
     async getUserSpendsByDate(
         userId: number,
-        period: 'day' | 'week' | 'month' | 'year' = 'year',
+        period: 'day' | 'week' | 'month' | 'year' = 'month',
         date: string = Date.now().toLocaleString()
     ) {
         const where: sequelize.WhereOptions<Spend> = {
             userId,
         }
-        const today = new Date()
-        today.setHours(0, 0, 0, 0);
+        let today = new Date()
+        today.setHours(0, 0, 0, 0)
 
+
+        let result = {}
         switch (period) {
             case 'day': {
                 const tomorrow = new Date(today.toLocaleDateString())
                 where.createdAt = {
                     [Op.between]: [today, tomorrow.setDate(tomorrow.getDate() + 1)]
                 }
-            }
                 break;
+            }
+
             case 'week': {
-                const first = today.getDate() - today.getDay(); // First day is the day of the month - the day of the week
+                const first = today.getDate() - today.getDay() + 1; // First day is the day of the month - the day of the week
                 const last = first + 6; // last day is the first day + 6
-                const firstDay = new Date(today.setDate(first)).toUTCString();
-                const lastDay = new Date(today.setDate(last)).toUTCString();
+                const firstDay = new Date(today.setDate(first));
+                const lastDay = new Date(today.setDate(last));
                 where.createdAt = {
-                    [Op.between]: [firstDay, lastDay]
+                    [Op.between]: [new Date(firstDay), new Date(lastDay)]
                 }
+                result = this.fillPeriod(firstDay, lastDay)
+                break;
             }
-            case 'month': {
-                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                where.createdAt = {
-                    [Op.between]: [firstDay, lastDay]
+            case 'month':
+                {
+                    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    where.createdAt = {
+                        [Op.between]: [new Date(firstDay), new Date(lastDay)]
+                    }
+                    result = this.fillPeriod(firstDay, lastDay)
+                    break;
                 }
-            }
+
             case 'year': {
                 const currentYear = today.getFullYear();
                 const firstDay = new Date(currentYear, 0, 1);
                 const lastDay = new Date(currentYear, 11, 31);
                 where.createdAt = {
-                    [Op.between]: [firstDay, lastDay]
+                    [Op.between]: [new Date(firstDay), new Date(lastDay)]
                 }
+                result = this.fillPeriod(firstDay, lastDay)
+                break;
             }
         }
         //TODO: add period
@@ -126,7 +137,7 @@ export class SpendService {
 
         })
 
-        const result = {}
+
         for (const spend of spends) {
             const createdAt = period === 'day' ? spend.dataValues.createdAt.toLocaleString() : spend.dataValues.createdAt.toLocaleDateString()
             if (!result[createdAt]) {
@@ -186,12 +197,22 @@ export class SpendService {
         })
 
     }
-    groupBy = function (xs, key) {
-        return xs.reduce(function (rv, x) {
-            (rv[x[key]] = rv[x[key]] || []).push(x);
-            return rv;
-        }, {});
-    };
+
+    fillPeriod = (firstDate: Date, lastDate: Date) => {
+        var now = new Date();
+        var daysOfYear = [];
+        const period = {}
+        for (let d = firstDate; d <= lastDate; d.setDate(d.getDate() + 1)) {
+            const createdAt = new Date(d).toLocaleDateString()
+            period[createdAt] = {
+                createdAt,
+                income: 0,
+                expense: 0,
+            }
+            daysOfYear.push(new Date(d));
+        }
+        return period
+    }
 
 }
 
