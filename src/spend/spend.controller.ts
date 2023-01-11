@@ -20,6 +20,11 @@ export class SpendController {
     getUserSpends(@Query('start') start, @Query('end') end, @Request() req) {
         return this.spendService.getUserSpends(req.user.id, start, end)
     }
+    @UseGuards(AuthGuard('jwt'))
+    @Get('sum')
+    getSumUserSpends(@Query('start') start, @Query('end') end, @Request() req) {
+        return this.spendService.getSumUserSpends(req.user.id)
+    }
 
     @UseGuards(AuthGuard('jwt'))
     @Get('date')

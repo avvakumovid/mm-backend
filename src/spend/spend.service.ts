@@ -61,6 +61,28 @@ export class SpendService {
 
         })
     }
+    async getSumUserSpends(userId: number) {
+        const where: sequelize.WhereOptions<Spend> = {
+            userId,
+        }
+        return this.spendRepository.findAll({
+            where,
+            include: [
+                {
+                    model: Category,
+                    attributes: []
+                }
+            ],
+            group: ["category.type"],
+            attributes:
+                [
+                    [sequelize.fn("COUNT", sequelize.col("amount")), "count"],
+                    [sequelize.fn('SUM', sequelize.col('amount')), 'total'],
+                    [sequelize.fn('CONCAT', sequelize.col('category.type')), 'type'],
+                ],
+
+        })
+    }
 
     async getUserSpendsByDate(
         userId: number,
