@@ -65,7 +65,8 @@ export class SpendService {
         const where: sequelize.WhereOptions<Spend> = {
             userId,
         }
-        return this.spendRepository.findAll({
+
+        const spends: any = await this.spendRepository.findAll({
             where,
             include: [
                 {
@@ -82,11 +83,13 @@ export class SpendService {
                 ],
 
         })
+
+        return spends.map(spend => ({ ...spend.dataValues, total: +spend.dataValues.total.toFixed(2) }))
     }
 
     async getUserSpendsByDate(
         userId: number,
-        period: 'day' | 'week' | 'month' | 'year' = 'month',
+        period: 'day' | 'week' | 'month' | 'year' = 'day',
         date: string = Date.now().toLocaleString()
     ) {
         const where: sequelize.WhereOptions<Spend> = {
@@ -100,9 +103,9 @@ export class SpendService {
 
         switch (period) {
             case 'day': {
-                const tomorrow = new Date(today.toLocaleDateString())
+                const tomorrow = new Date(today)
                 where.createdAt = {
-                    [Op.between]: [today, tomorrow.setDate(tomorrow.getDate() + 1)]
+                    [Op.between]: [new Date(today), tomorrow.setDate(tomorrow.getDate() + 1)]
                 }
                 break;
             }
